@@ -149,6 +149,55 @@ GIT_USER_EMAIL=you@example.com
 
 On boot, the server clones the repo to `$WORKSPACE_DIR/notes`, auto-pulls every 5 min, and the diff review UI lets you commit + push from the browser.
 
+## How your vault needs to be structured
+
+The voice agent's planner and the `ingest` skill depend on a specific layout. If your vault doesn't follow it, the agent will still work (search / Q&A are just grep) but ingest quality, podcast mode, and "Daily Briefing" will degrade. The layout is an Obsidian-style three-layer design:
+
+- **Raw sources** (`_raw/`) — immutable source material. Papers, PDFs, clipped articles. The ingest skill reads from here.
+- **Wiki** (`<Topic>/wiki/`) — LLM-generated markdown articles. Concept pages, paper summaries, comparisons. This is what the voice agent searches and cites.
+- **Schema** (`CLAUDE.md` at the vault root) — operating instructions the ingest skill reads first, every time. Defines conventions and workflows.
+
+Required at the vault root:
+
+| File / folder | Role |
+|---|---|
+| `CLAUDE.md` | Schema — first thing the ingest skill reads |
+| `index.md` | Master index of all knowledge areas |
+| `log.md` | Reverse-chronological log of every ingest / update. The voice agent reads this for podcast + daily briefing modes |
+| `_raw/<topic>/` | Where source files live |
+| `<Topic>/index.md` | One-line summary of every page in the topic |
+| `<Topic>/wiki/...` | The actual wiki articles |
+| `_templates/` (optional) | Templates for new articles and topics |
+
+Starter files are in [`docs/`](./docs/):
+
+- [`docs/vault-schema.md`](./docs/vault-schema.md) — copy to your vault root as `CLAUDE.md`. Defines layer boundaries, YAML frontmatter format, linking conventions, tag hierarchy, and operation workflows.
+- [`docs/templates/new-article.md`](./docs/templates/new-article.md) — copy to `_templates/new-article.md` in your vault. The ingest skill uses it to seed new pages.
+- [`docs/templates/new-topic.md`](./docs/templates/new-topic.md) — copy to `_templates/new-topic.md` in your vault. Used when bootstrapping a new knowledge area.
+
+Bootstrap an empty vault:
+
+```bash
+cd <your-vault>
+mkdir -p _raw _templates
+curl -o CLAUDE.md https://raw.githubusercontent.com/xd00099/pocket-intelligence/main/docs/vault-schema.md
+curl -o _templates/new-article.md https://raw.githubusercontent.com/xd00099/pocket-intelligence/main/docs/templates/new-article.md
+curl -o _templates/new-topic.md https://raw.githubusercontent.com/xd00099/pocket-intelligence/main/docs/templates/new-topic.md
+echo "# Knowledge Base" > index.md
+echo "# Log" > log.md
+```
+
+After that, list your knowledge areas at the bottom of `CLAUDE.md` (the "Current Knowledge Areas" section) so the ingest skill knows where to file new sources. Everything else the LLM maintains for you.
+
+### What each piece actually drives
+
+- The planner prompt references `log.md` + topic `index.md` → if those exist, "Daily Briefing" and "Podcast" modes know what you've been reading lately.
+- The `ingest` skill reads `CLAUDE.md` at every ingest → it files new PDFs into the right `_raw/<topic>/` path and writes summaries into the right `<Topic>/wiki/` path.
+- YAML frontmatter (`tags`, `sources`, `updated`) → what makes the knowledge graph meaningful and what the voice agent cites as quote cards.
+- Obsidian `[[wikilinks]]` → the edges in the knowledge graph visualization and the backlinks rendered under every note.
+
+You can deviate — edit `CLAUDE.md` to describe your own conventions. But whatever layout you pick must be documented there, because every ingest starts by reading it.
+
 ## License
 
 [MIT](./LICENSE)
