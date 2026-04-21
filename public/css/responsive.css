@@ -1,0 +1,32 @@
+/* === Mobile === */
+@media (max-width: 768px) {
+  :root { --sidebar-width: 280px; --intel-width: 100%; }
+  .sidebar {
+    position: fixed; left: 0; top: 42px; bottom: 0; z-index: 60;
+    transform: translateX(-100%); transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: none; width: var(--sidebar-width);
+  }
+  .sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,0.3); }
+  .sidebar.collapsed { transform: translateX(-100%); width: var(--sidebar-width); opacity: 1; }
+  .sidebar-toggle { display: inline-flex; }
+
+  .intel-panel {
+    position: fixed; right: 0; top: 42px; bottom: 0;
+    transform: translateX(100%); z-index: 55;
+    width: 100%;
+  }
+  .intel-panel.collapsed { transform: translateX(100%); width: 100%; opacity: 1; }
+  .intel-panel:not(.collapsed) { transform: translateX(0); }
+  .intel-resize { display: none; }
+
+  .note-article { padding: 20px 16px; }
+  .backlinks-section { padding: 0 16px 24px; }
+  .cmd-input-row { padding: 10px 14px; }
+  .cmd-hint { display: none; }
+  .note-toc { display: none !important; }
+  #mobile-toolbar { display: flex; }
+}
+
+@media (max-width: 1100px) {
+  .note-toc { display: none !important; }
+}

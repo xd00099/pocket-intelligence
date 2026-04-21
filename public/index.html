@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0c1120">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon.svg">
+  <title>Pocket Intelligence</title>
+  <!-- External stylesheets -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark-dimmed.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <!-- App stylesheets (v5 cache bust) -->
+  <link rel="stylesheet" href="/css/tokens.css?v=12">
+  <link rel="stylesheet" href="/css/layout.css?v=12">
+  <link rel="stylesheet" href="/css/intel.css?v=12">
+  <link rel="stylesheet" href="/css/components.css?v=12">
+  <link rel="stylesheet" href="/css/responsive.css?v=12">
+</head>
+<body>
+
+  <!-- Auth -->
+  <div id="auth-overlay">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="18" stroke="url(#logo-grad)" stroke-width="1.5" opacity="0.5"/>
+          <circle cx="20" cy="20" r="10" fill="url(#logo-grad)" opacity="0.8"/>
+          <defs><linearGradient id="logo-grad" x1="0" y1="0" x2="40" y2="40"><stop stop-color="#818cf8"/><stop offset="1" stop-color="#6366f1"/></linearGradient></defs>
+        </svg>
+      </div>
+      <h1>Pocket Intelligence</h1>
+      <p>Your AI-powered knowledge companion</p>
+      <a href="/auth/google" class="google-btn">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </a>
+      <div class="auth-error" id="auth-error"></div>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="app">
+    <!-- Header -->
+    <div class="app-header">
+      <div class="app-header-left">
+        <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        </button>
+        <span class="app-header-title">Pocket Intelligence</span>
+      </div>
+      <div class="app-header-actions">
+        <button class="btn btn-ghost" id="focus-btn" title="Focus mode">Focus</button>
+        <button class="btn btn-blue pull-btn">Pull</button>
+        <button class="btn btn-ghost changes-btn" id="changes-btn" title="No changes">No changes</button>
+        <button class="btn btn-accent" id="intel-toggle" title="Toggle intelligence panel (Cmd+J)">Intel</button>
+        <button class="btn btn-ghost" id="theme-toggle" title="Toggle theme">
+          <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <a href="/auth/logout" class="btn btn-danger">Logout</a>
+      </div>
+    </div>
+
+    <!-- 3-Column Layout -->
+    <div class="app-body">
+      <!-- Left Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <input type="text" id="notes-search-input" class="sidebar-search" placeholder="Search notes..." autocomplete="off">
+          <button class="sidebar-upload-btn" id="sidebar-upload-btn" title="Upload files">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </button>
+        </div>
+        <div class="sidebar-tree" id="notes-tree-wrap">
+          <div id="notes-tree"></div>
+        </div>
+        <div class="sidebar-results" id="notes-search-results"></div>
+        <div class="sidebar-bottom">
+          <button class="sidebar-bottom-btn" id="sidebar-graph-btn">&#x25CE; Graph</button>
+          <button class="sidebar-bottom-btn" id="sidebar-stats-btn">&#x2261; Stats</button>
+        </div>
+        <div class="sidebar-resize" id="sidebar-resize"></div>
+      </aside>
+      <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+      <!-- Center Content -->
+      <main class="content-area" id="content-area">
+        <div class="note-tabs" id="note-tabs"></div>
+        <div class="content-toolbar">
+          <div class="notes-breadcrumb" id="notes-breadcrumb">
+            <span data-path="">Home</span>
+          </div>
+          <button class="toolbar-btn" id="toc-toggle" title="Toggle table of contents" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M3 12h18M3 6h18M3 18h12"/></svg>
+          </button>
+          <button class="toolbar-btn" id="edit-toggle" title="Switch to edit mode" style="display:none">
+            <svg class="edit-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <svg class="read-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14" style="display:none"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </button>
+        </div>
+        <div class="notes-content" id="notes-content">
+          <div class="notes-content-inner">
+            <div class="notes-scroll" id="notes-scroll">
+              <div class="notes-welcome">
+                <div class="notes-welcome-icon">&#x1f4d6;</div>
+                <h2>Your Knowledge Base</h2>
+                <p>Select a note from the sidebar, or press <kbd>Ctrl+K</kbd> to search</p>
+              </div>
+            </div>
+            <div class="note-toc" id="note-toc"></div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Intelligence Panel (Right) -->
+      <aside class="intel-panel" id="intel-panel">
+        <div class="intel-resize" id="intel-resize"></div>
+        <div class="intel-header">
+          <div class="intel-tabs">
+            <button class="intel-tab active" data-panel="terminal"><span class="intel-tab-icon">&gt;_</span> Terminal</button>
+            <button class="intel-tab" data-panel="voice"><span class="intel-tab-icon">&#x1f399;</span> Voice</button>
+            <button class="intel-tab" data-panel="tasks"><span class="intel-tab-icon">&#x2610;</span> Tasks</button>
+          </div>
+          <div class="intel-actions">
+            <button class="btn btn-ghost" id="intel-focus-btn" title="Focus">&#x26F6;</button>
+            <button class="btn btn-ghost" id="intel-close-btn">&times;</button>
+          </div>
+        </div>
+
+        <!-- Context Bar -->
+        <div class="intel-context" id="intel-context" style="display:none">
+          <span class="intel-context-icon">&#x1f4dd;</span>
+          <span class="intel-context-text" id="intel-context-text"></span>
+          <button class="intel-context-close" id="intel-context-close">&times;</button>
+        </div>
+
+        <!-- Terminal Panel -->
+        <div class="intel-body active" id="intel-terminal" data-panel="terminal">
+          <div id="terminal"></div>
+          <div id="mobile-toolbar">
+            <button data-cmd="ctrlc">Ctrl+C</button>
+            <button data-cmd="tab">Tab</button>
+            <button data-cmd="esc">Esc</button>
+            <button data-cmd="slash">/</button>
+            <button data-cmd="up">&uarr;</button>
+            <button data-cmd="down">&darr;</button>
+            <button data-cmd="enter">Enter</button>
+          </div>
+        </div>
+
+        <!-- Voice Panel -->
+        <div class="intel-body" id="intel-voice" data-panel="voice">
+          <div class="voice-body" id="voice-body">
+            <div class="voice-ended-bar">
+              <div class="voice-ended-bar-inner">
+                <div class="voice-ended-actions">
+                  <button class="btn-new-session" id="voice-new-btn">New Session</button>
+                  <button class="btn-resume-session" id="voice-resume-btn">Resume</button>
+                  <button class="btn-save-conv" id="voice-save-btn">Save</button>
+                </div>
+              </div>
+            </div>
+            <h2 id="voice-title">Good evening</h2>
+            <p class="voice-subtitle">Your knowledge base awaits.</p>
+            <div id="voice-status"></div>
+            <button id="mic-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="19" x2="12" y2="22"/></svg></button>
+            <div class="mic-label" id="mic-label">Tap to start</div>
+            <button id="voice-end-btn">End session</button>
+            <div class="voice-plan-outline" id="voice-plan-outline" aria-label="Plan outline"></div>
+            <div class="voice-gestures" id="voice-gestures">
+              <button class="voice-gesture" data-action="deeper" title="Go deeper on the last thing you heard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+                <span>Deeper</span>
+              </button>
+              <button class="voice-gesture" data-action="save" title="Save this moment to voice-saved.md">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" width="12" height="12"><polygon points="12 2 15.1 8.3 22 9.3 17 14.2 18.2 21 12 17.8 5.8 21 7 14.2 2 9.3 8.9 8.3 12 2"/></svg>
+                <span>Save</span>
+              </button>
+            </div>
+            <div class="voice-presets" id="voice-presets">
+              <button class="voice-preset" data-preset="briefing"><span class="voice-preset-label">Daily Briefing</span></button>
+              <button class="voice-preset" data-preset="quiz"><span class="voice-preset-label">Quiz Me</span></button>
+              <button class="voice-preset" data-preset="deepdive"><span class="voice-preset-label">Deep Dive</span></button>
+              <button class="voice-preset" data-preset="podcast"><span class="voice-preset-label">Podcast</span></button>
+            </div>
+            <div class="voice-settings" id="voice-settings">
+              <div class="voice-setting">
+                <label>Voice</label>
+                <select id="voice-select">
+                  <option value="coral">Coral</option>
+                  <option value="alloy">Alloy</option>
+                  <option value="sage">Sage</option>
+                  <option value="shimmer">Shimmer</option>
+                  <option value="ash">Ash</option>
+                  <option value="ballad">Ballad</option>
+                  <option value="echo">Echo</option>
+                  <option value="verse">Verse</option>
+                </select>
+              </div>
+              <div class="voice-setting">
+                <label>Speed</label>
+                <div class="voice-speed-pills">
+                  <button class="speed-pill" data-speed="0.85">Slow</button>
+                  <button class="speed-pill" data-speed="1.0">Normal</button>
+                  <button class="speed-pill active" data-speed="1.15">Fast</button>
+                  <button class="speed-pill" data-speed="1.35">Very fast</button>
+                </div>
+              </div>
+            </div>
+            <div id="transcript"></div>
+            <div class="voice-gesture-toast" id="voice-gesture-toast" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <!-- Tasks Panel -->
+        <div class="intel-body" id="intel-tasks" data-panel="tasks">
+          <div class="tasks-controls">
+            <div class="tasks-controls-left">
+              <button class="btn btn-accent btn-sm" id="task-execute-btn" title="Execute next pending task">Execute Next</button>
+              <button class="btn btn-ghost btn-sm" id="task-add-btn" title="Add task manually">+ Add</button>
+            </div>
+            <div class="tasks-controls-right">
+              <label class="auto-execute-toggle" title="Auto-execute pending tasks">
+                <input type="checkbox" id="auto-execute-toggle">
+                <span class="toggle-slider"></span>
+                <span class="toggle-label">Auto</span>
+              </label>
+            </div>
+          </div>
+          <div class="task-add-form" id="task-add-form" style="display:none">
+            <textarea id="task-add-input" placeholder="Describe the task for Claude Code..." rows="3"></textarea>
+            <div class="task-add-actions">
+              <button class="btn btn-accent btn-sm" id="task-add-submit">Queue Task</button>
+              <button class="btn btn-ghost btn-sm" id="task-add-cancel">Cancel</button>
+            </div>
+          </div>
+          <div class="tasks-body" id="tasks-body">
+            <div class="tasks-empty" id="tasks-empty">
+              <div class="tasks-empty-icon">&#x2610;</div>
+              <h3>No Tasks</h3>
+              <p>Tasks come from voice delegation, cron jobs, or manual creation.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Graph Overlay -->
+  <div class="graph-overlay" id="graph-overlay">
+    <div class="graph-header">
+      <span class="graph-header-title">Knowledge Graph</span>
+      <button class="graph-close" id="graph-close">&times;</button>
+    </div>
+    <canvas class="graph-canvas" id="graph-canvas"></canvas>
+    <div class="graph-controls" id="graph-controls">
+      <button id="graph-zoom-in" title="Zoom in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <button id="graph-zoom-out" title="Zoom out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+      <button id="graph-recenter" title="Fit to screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="16" height="16"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+      </button>
+    </div>
+    <div class="graph-tooltip" id="graph-tooltip"></div>
+    <div class="graph-stats" id="graph-stats"></div>
+  </div>
+
+  <!-- Stats Overlay -->
+  <div class="stats-overlay" id="stats-overlay">
+    <div class="stats-header">
+      <span class="stats-header-title">Vault Stats</span>
+      <button class="graph-close" id="stats-close">&times;</button>
+    </div>
+    <div class="stats-body" id="stats-body"></div>
+  </div>
+
+  <!-- Command Bar -->
+  <div class="cmd-bar" id="cmd-bar">
+    <div class="cmd-bar-inner">
+      <div class="cmd-input-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="cmd-input" placeholder="Search, /commands, or ?ask AI..." autocomplete="off">
+      </div>
+      <div class="cmd-results" id="cmd-results">
+        <div class="cmd-results-inner" id="cmd-results-inner"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Selection Toolbar -->
+  <div class="selection-toolbar" id="selection-toolbar">
+    <button data-action="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> Ask</button>
+    <button data-action="explain"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Explain</button>
+    <span class="sel-divider"></span>
+    <button data-action="voice" style="color:var(--accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/></svg> Voice</button>
+    <span class="sel-divider"></span>
+    <button data-action="highlight" style="color:var(--amber)">Highlight</button>
+  </div>
+
+  <!-- Diff Review Overlay -->
+  <div class="diff-overlay" id="diff-overlay">
+    <div class="diff-header">
+      <span class="diff-header-title">Review Changes</span>
+      <div class="diff-actions">
+        <button class="btn btn-green" id="diff-push-btn">Push Changes</button>
+        <button class="graph-close" id="diff-close">&times;</button>
+      </div>
+    </div>
+    <div class="diff-body" id="diff-body"></div>
+  </div>
+
+  <!-- Upload Overlay -->
+  <div class="upload-overlay" id="upload-overlay">
+    <div class="upload-overlay-inner">
+      <div class="upload-header">
+        <h3>Upload to Knowledge Base</h3>
+        <button class="btn btn-ghost" id="upload-close-btn">&times;</button>
+      </div>
+      <div class="upload-dropzone" id="upload-dropzone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32" style="opacity:0.3;margin-bottom:8px"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Drop files here or click to browse</p>
+        <p class="upload-hint">PDFs, images, markdown, text — up to 50MB each</p>
+      </div>
+      <div class="upload-file-list" id="upload-file-list"></div>
+      <div class="upload-actions" id="upload-actions" style="display:none">
+        <label class="upload-auto-ingest"><input type="checkbox" id="upload-auto-ingest" checked> Auto-ingest</label>
+        <button class="btn btn-accent" id="upload-submit-btn">Upload</button>
+      </div>
+      <div class="upload-progress" id="upload-progress" style="display:none">
+        <div class="upload-progress-bar"><div class="upload-progress-fill" id="upload-progress-fill"></div></div>
+        <span class="upload-progress-text" id="upload-progress-text">Uploading...</span>
+      </div>
+    </div>
+  </div>
+  <input type="file" id="upload-file-input" multiple accept=".pdf,.md,.txt,.html,.htm,.png,.jpg,.jpeg,.gif,.webp,.svg,.csv,.json,.xml,.epub" style="display:none">
+
+  <!-- Focus Exit -->
+  <button class="focus-exit" id="focus-exit">Exit focus</button>
+
+  <!-- Disconnect -->
+  <div id="disconnect-overlay">
+    <div class="disconnect-msg">
+      <h2>Disconnected</h2>
+      <p>Tap anywhere to reconnect</p>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script type="module" src="/js/app.js?v=12"></script>
+</body>
+</html>

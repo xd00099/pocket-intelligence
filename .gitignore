@@ -1,0 +1,35 @@
+# Dependencies + build output
+node_modules/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Runtime state (session cookies, task queue, cron jobs, preview cache)
+.sessions.json
+.task-queue.json
+.task-queue.json.tmp
+.cron-jobs.json
+.cron-jobs.json.tmp
+.preview-cache/
+
+# Workspace data — mounted volumes in production but may appear locally during
+# dev/testing.
+workspace/
+notes/
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Claude Code config written at boot
+.claude/
+.claude.json

@@ -1,0 +1,29 @@
+{
+  "name": "pocket-intelligence",
+  "version": "0.1.0",
+  "description": "LLM-native note-taking: Obsidian-compatible vault + voice agent + task delegation + git sync.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "npx tsx --watch src/server.ts"
+  },
+  "dependencies": {
+    "@types/multer": "^2.1.0",
+    "express": "^4.21.0",
+    "multer": "^2.1.1",
+    "node-cron": "^4.2.1",
+    "node-pty": "^1.0.0",
+    "openai": "^4.77.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "@types/ws": "^8.5.0",
+    "typescript": "^5.7.0"
+  }
+}
